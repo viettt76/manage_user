@@ -1,7 +1,18 @@
-import axios from "axios"
+import axios from './customize-axios'
 
-const fetchAllUsers = () => {
-    return axios.get('https://reqres.in/api/users?page=1')
+const fetchAllUsers = (page) => {
+    return axios.get('/api/users', {
+        params: {
+            page
+        }
+    })
 }  
 
-export { fetchAllUsers }
+const postCreateUser = (name, job) => {
+    return axios.post('/api/users', {
+        name,
+        job
+    })
+}
+
+export { fetchAllUsers, postCreateUser }
