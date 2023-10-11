@@ -1,45 +1,44 @@
-import { forwardRef, useState, useRef, useImperativeHandle } from "react";
+import {
+  forwardRef,
+  useState,
+  useRef,
+  useEffect,
+} from "react";
+import { putUpdateUser } from "../services/UserService";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
-import { toast } from "react-toastify";
-import { postCreateUser } from "../services/UserService";
 
-const ModalAddNew = forwardRef((props, ref) => {
+const ModalEditUser = forwardRef((props, ref) => {
   const modalAddNewRef = useRef();
 
-  const { show, handleClose } = props;
+  const { show, handleClose, dataEditUser, handleUpdateTable } = props;
   const [name, setName] = useState("");
   const [job, setJob] = useState("");
-  const [info, setInfo] = useState({});
 
-  useImperativeHandle(ref, () => {
-    return info;
-  });
-
-  const handleCreateUser = async () => {
-    const res = await postCreateUser(name, job);
-    if (res && res.id) {
-      setInfo({
-        first_name: res.name,
-        id: res.id,
-      });
-      handleClose();
-      setName("");
-      setJob("");
-      toast.success("User is created succeed");
-      // success
-    } else {
-      toast.error("User is not created");
-      // error
+  const handleEditUser = async () => {
+    let res = await putUpdateUser (name, job, dataEditUser.id)
+    if(res && res.updatedAt) {
+      handleUpdateTable({
+        first_name: name,
+        id: dataEditUser.id,
+      })
     }
+    handleClose()
   };
+
+  useEffect(() => {
+    if (show) {
+      setName(dataEditUser.first_name);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataEditUser]);
 
   return (
     <div ref={modalAddNewRef}>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Add new user</Modal.Title>
+          <Modal.Title>Edit user</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -48,7 +47,6 @@ const ModalAddNew = forwardRef((props, ref) => {
               <Form.Control
                 value={name}
                 type="text"
-                placeholder="Enter name"
                 onChange={(e) => setName(e.target.value)}
               />
             </Form.Group>
@@ -58,7 +56,6 @@ const ModalAddNew = forwardRef((props, ref) => {
               <Form.Control
                 value={job}
                 type="text"
-                placeholder="Enter job"
                 onChange={(e) => setJob(e.target.value)}
               />
             </Form.Group>
@@ -68,8 +65,8 @@ const ModalAddNew = forwardRef((props, ref) => {
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleCreateUser}>
-            Add
+          <Button variant="primary" onClick={handleEditUser}>
+            Confirm
           </Button>
         </Modal.Footer>
       </Modal>
@@ -77,4 +74,4 @@ const ModalAddNew = forwardRef((props, ref) => {
   );
 });
 
-export default ModalAddNew;
+export default ModalEditUser;

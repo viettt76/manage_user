@@ -13,8 +13,6 @@ import "./App.scss";
 function App() {
   const modalAddNewRef = useRef()
 
-  console.log(modalAddNewRef.current);
-
   const [newUser, setNewUser] = useState({})
 
   const [isShowModalAddNew, setIsShowModalAddNew] = useState(false);
