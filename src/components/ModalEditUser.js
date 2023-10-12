@@ -1,5 +1,4 @@
 import {
-  forwardRef,
   useState,
   useRef,
   useEffect,
@@ -8,8 +7,9 @@ import { putUpdateUser } from "../services/UserService";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
+import { toast } from "react-toastify";
 
-const ModalEditUser = forwardRef((props, ref) => {
+const ModalEditUser = (props) => {
   const modalAddNewRef = useRef();
 
   const { show, handleClose, dataEditUser, handleUpdateTable } = props;
@@ -22,7 +22,10 @@ const ModalEditUser = forwardRef((props, ref) => {
       handleUpdateTable({
         first_name: name,
         id: dataEditUser.id,
-      })
+      }, 'edit')
+      toast.success('Updated successfully')
+    } else {
+      toast.error('Couldn\'t update')
     }
     handleClose()
   };
@@ -66,12 +69,12 @@ const ModalEditUser = forwardRef((props, ref) => {
             Close
           </Button>
           <Button variant="primary" onClick={handleEditUser}>
-            Confirm
+            Update
           </Button>
         </Modal.Footer>
       </Modal>
     </div>
   );
-});
+};
 
 export default ModalEditUser;

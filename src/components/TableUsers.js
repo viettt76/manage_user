@@ -5,6 +5,7 @@ import { Button } from "react-bootstrap";
 import _ from "lodash";
 import { fetchAllUsers } from "../services/UserService";
 import ModalEditUser from "./ModalEditUser";
+import ModalConfirm from "./ModalConfirm";
 
 function TableUsers({ newUser = {} }) {
   const [listUsers, setListUsers] = useState([]);
@@ -13,6 +14,9 @@ function TableUsers({ newUser = {} }) {
 
   const [isShowModalEditUser, setIsShowModalEditUser] = useState(false);
   const [dataEditUser, setDataEditUser] = useState({});
+
+  const [isShowModalDeleteUser, setIsShowModalDeleteUser] = useState(false);
+  const [dataDeleteUser, setDataDeleteUser] = useState({});
 
   useEffect(() => {
     getUsers(currentPage);
@@ -35,17 +39,26 @@ function TableUsers({ newUser = {} }) {
     setCurrentPage(e.selected + 1);
   };
 
+  const handleUpdateTable = (user, action) => {
+    let cloneListUsers = _.cloneDeep(listUsers);
+    const index = listUsers.findIndex((item) => item.id === user.id);
+    if(action === 'edit') {
+      cloneListUsers[index].first_name = user.first_name;
+    } else if( action === 'delete') {
+      cloneListUsers.splice(index, 1)
+    }
+    setListUsers(cloneListUsers);
+  };
+
   const handleEditUser = (user) => {
     setIsShowModalEditUser(true);
     setDataEditUser(user);
   };
 
-  const handleUpdateTable = (user) => {
-    let cloneListUsers = _.cloneDeep(listUsers)
-    const index = listUsers.findIndex((item) => item.id === user.id);
-    cloneListUsers[index].first_name = user.first_name
-    setListUsers(cloneListUsers)
-  };
+  const handleDeleteUser = (user) => {
+    setIsShowModalDeleteUser(true)
+    setDataDeleteUser(user)
+  }
 
   return (
     <>
@@ -77,7 +90,9 @@ function TableUsers({ newUser = {} }) {
                     >
                       Edit
                     </Button>
-                    <Button variant="danger">Delete</Button>
+                    <Button variant="danger"
+                      onClick={() => handleDeleteUser(user)}
+                    >Delete</Button>
                   </td>
                 </tr>
               );
@@ -89,6 +104,13 @@ function TableUsers({ newUser = {} }) {
         show={isShowModalEditUser}
         handleClose={() => setIsShowModalEditUser(false)}
         dataEditUser={dataEditUser}
+        handleUpdateTable={handleUpdateTable}
+      />
+
+      <ModalConfirm
+        show={isShowModalDeleteUser}
+        handleClose={() => setIsShowModalDeleteUser(false)}
+        dataEditUser={dataDeleteUser}
         handleUpdateTable={handleUpdateTable}
       />
 

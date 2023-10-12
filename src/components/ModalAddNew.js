@@ -24,15 +24,15 @@ const ModalAddNew = forwardRef((props, ref) => {
         first_name: res.name,
         id: res.id,
       });
-      handleClose();
       setName("");
       setJob("");
-      toast.success("User is created succeed");
+      toast.success("User is created successfully");
       // success
     } else {
-      toast.error("User is not created");
+      toast.error("Create user failed");
       // error
     }
+    handleClose();
   };
 
   return (
