@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { Container } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
 import Button from "react-bootstrap/Button";
-import "react-toastify/dist/ReactToastify.css";
 
 import Header from "./components/Header";
 import TableUsers from "./components/TableUsers";
