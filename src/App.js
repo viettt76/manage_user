@@ -1,44 +1,17 @@
-import { useEffect, useRef, useState } from "react";
-import { Container } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
-import Button from "react-bootstrap/Button";
 
 import Header from "./components/Header";
 import TableUsers from "./components/TableUsers";
-import ModalAddNew from "./components/ModalAddNew";
 import "./App.scss";
 
-
 function App() {
-  const modalAddNewRef = useRef()
 
-  const [newUser, setNewUser] = useState({})
 
-  const [isShowModalAddNew, setIsShowModalAddNew] = useState(false);
-
-  useEffect(() => {
-    setNewUser(modalAddNewRef.current)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modalAddNewRef.current])
 
   return (
     <div className="App">
       <Header />
-      <Container>
-        <div className="my-3 add-new">
-          <span className="heading">List Users:</span>
-          <Button variant="success" onClick={() => setIsShowModalAddNew(true)}>
-            Add new user
-          </Button>
-        </div>
-        <TableUsers newUser={newUser} />
-      </Container>
-
-      <ModalAddNew
-        ref={modalAddNewRef}
-        show={isShowModalAddNew}
-        handleClose={() => setIsShowModalAddNew(false)}
-      />
+      <TableUsers />
 
       <ToastContainer
         position="top-right"

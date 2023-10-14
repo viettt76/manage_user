@@ -1,3 +1,17 @@
+.my-3.add-new {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .btn {
+        margin: 0 6px;
+    }
+
+    i {
+        margin-right: 3px;
+    }
+}
+
 .sort-header {
     display: flex;
     justify-content: space-between;

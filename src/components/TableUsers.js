@@ -2,16 +2,22 @@ import { useState, useEffect } from "react";
 import Table from "react-bootstrap/Table";
 import ReactPaginate from "react-paginate";
 import { Button } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import _ from "lodash";
+import { CSVLink } from "react-csv";
 import { fetchAllUsers } from "../services/UserService";
+import ModalAddNew from "./ModalAddNew";
 import ModalEditUser from "./ModalEditUser";
 import ModalConfirm from "./ModalConfirm";
 import "./TableUser.scss";
+import useDebounce from "../hooks/useDebounce";
 
-function TableUsers({ newUser = {} }) {
+function TableUsers() {
   const [listUsers, setListUsers] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [isShowModalAddNew, setIsShowModalAddNew] = useState(false);
 
   const [isShowModalEditUser, setIsShowModalEditUser] = useState(false);
   const [dataEditUser, setDataEditUser] = useState({});
@@ -22,14 +28,11 @@ function TableUsers({ newUser = {} }) {
   const [sortBy, setSortBy] = useState("asc");
   const [sortField, setSortField] = useState("id");
 
+  const [keyword, setKeyword] = useState("");
+
   useEffect(() => {
     getUsers(currentPage);
   }, [currentPage]);
-
-  useEffect(() => {
-    setListUsers([newUser, ...listUsers]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newUser]);
 
   const getUsers = async (page) => {
     const res = await fetchAllUsers(page);
@@ -46,12 +49,18 @@ function TableUsers({ newUser = {} }) {
   const handleUpdateTable = (user, action) => {
     let cloneListUsers = _.cloneDeep(listUsers);
     const index = listUsers.findIndex((item) => item.id === user.id);
-    if (action === "edit") {
+    if (action === "add") {
+      cloneListUsers = [user, ...cloneListUsers];
+    } else if (action === "edit") {
       cloneListUsers[index].first_name = user.first_name;
     } else if (action === "delete") {
       cloneListUsers.splice(index, 1);
     }
     setListUsers(cloneListUsers);
+  };
+
+  const handleAddNewUser = () => {
+    setIsShowModalAddNew(true);
   };
 
   const handleEditUser = (user) => {
@@ -64,17 +73,73 @@ function TableUsers({ newUser = {} }) {
     setDataDeleteUser(user);
   };
 
-  const handleSortHeader = (sortByValue, sortFieldValue) => {
-    setSortBy(sortByValue)
-    setSortField(sortFieldValue)
+  const handleSortHeader = (sortBy, sortField) => {
+    setSortBy(sortBy);
+    setSortField(sortField);
 
     let cloneListUsers = _.cloneDeep(listUsers);
-    cloneListUsers = _.orderBy(cloneListUsers, [sortFieldValue], [sortByValue])
-    setListUsers(cloneListUsers)
+    cloneListUsers = _.orderBy(cloneListUsers, [sortField], [sortBy]);
+    setListUsers(cloneListUsers);
   };
 
+  const handleSearch = (e) => {
+    const term = e.target.value;
+    setKeyword(term);
+  };
+
+  const debounceValue = useDebounce(keyword, 500);
+
+  useEffect(() => {
+    if (debounceValue) {
+      let cloneListUsers = _.cloneDeep(listUsers);
+      cloneListUsers = _.filter(cloneListUsers, (item) =>
+        item.email.includes(debounceValue)
+      );
+      setListUsers(cloneListUsers);
+    } else {
+      getUsers(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debounceValue]);
+
+  const headers = [
+    { label: "ID", key: "id" },
+    { label: "First name", key: "first_name" },
+    { label: "Last name", key: "last_name" },
+    { label: "Email", key: "email" },
+    { label: "Avatar", key: "avatar" },
+  ];
+
   return (
-    <>
+    <Container>
+      <div className="my-3 add-new">
+        <span className="heading">List Users:</span>
+        <div>
+          <label htmlFor="import">
+            <span className="btn btn-primary"><i className="fa-solid fa-file-import"></i> Import</span>
+          </label>
+          <input type="file" id="import" hidden />
+
+          <CSVLink
+            data={listUsers}
+            headers={headers}
+            className="btn btn-warning"
+          >
+            <i className="fa-solid fa-file-arrow-down"></i> Export
+          </CSVLink>
+          <Button variant="success" onClick={handleAddNewUser}>
+            Add new user
+          </Button>
+        </div>
+      </div>
+      <div className="my-3 col-5">
+        <input
+          value={keyword}
+          className="form-control"
+          placeholder="Search user by email..."
+          onChange={(e) => handleSearch(e)}
+        />
+      </div>
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -144,23 +209,28 @@ function TableUsers({ newUser = {} }) {
         </tbody>
       </Table>
 
+      <ModalAddNew
+        show={isShowModalAddNew}
+        handleUpdateTable={handleUpdateTable}
+        handleClose={() => setIsShowModalAddNew(false)}
+      />
+
       <ModalEditUser
         show={isShowModalEditUser}
-        handleClose={() => setIsShowModalEditUser(false)}
         dataEditUser={dataEditUser}
         handleUpdateTable={handleUpdateTable}
+        handleClose={() => setIsShowModalEditUser(false)}
       />
 
       <ModalConfirm
         show={isShowModalDeleteUser}
-        handleClose={() => setIsShowModalDeleteUser(false)}
         dataEditUser={dataDeleteUser}
         handleUpdateTable={handleUpdateTable}
+        handleClose={() => setIsShowModalDeleteUser(false)}
       />
 
       <ReactPaginate
         nextLabel="next >"
-        onPageChange={handlePageClick}
         pageRangeDisplayed={3}
         marginPagesDisplayed={2}
         pageCount={totalPages}
@@ -176,8 +246,9 @@ function TableUsers({ newUser = {} }) {
         breakLinkClassName="page-link"
         containerClassName="pagination"
         activeClassName="active"
+        onPageChange={handlePageClick}
       />
-    </>
+    </Container>
   );
 }
 
