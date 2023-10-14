@@ -5,6 +5,9 @@ import { Button } from "react-bootstrap";
 import { Container } from "react-bootstrap";
 import _ from "lodash";
 import { CSVLink } from "react-csv";
+import Papa from "papaparse";
+import { toast } from "react-toastify";
+
 import { fetchAllUsers } from "../services/UserService";
 import ModalAddNew from "./ModalAddNew";
 import ModalEditUser from "./ModalEditUser";
@@ -110,20 +113,68 @@ function TableUsers() {
     { label: "Avatar", key: "avatar" },
   ];
 
+  const handleImportCSVFile = (e) => {
+    const file = e.target.files[0];
+
+    if (file.type === "text/csv") {
+      Papa.parse(file, {
+        header: false,
+        complete: function (responses) {
+          if (responses && responses.data && responses.data.length > 0) {
+            const data = responses.data;
+            if (data[0].length > 0) {
+              if (
+                data[0][0] === "first_name" &&
+                data[0][1] === "last_name" &&
+                data[0][2] === "email"
+              ) {
+                let result = [];
+                data.map((item, index) => {
+                  let obj = {};
+                  if (index > 0 && item.length === 3) {
+                    obj.first_name = item[0];
+                    obj.last_name = item[1];
+                    obj.email = item[2];
+                    result.push(obj);
+                  }
+                });
+                setListUsers(result);
+              } else {
+                toast.error("Wrong format header for CSV file");
+              }
+            } else {
+              toast.error("Wrong format for CSV file");
+            }
+          }
+        },
+      });
+    } else {
+      toast.error("Only CSV files are supported");
+    }
+  };
+
   return (
     <Container>
       <div className="my-3 add-new">
         <span className="heading">List Users:</span>
         <div>
           <label htmlFor="import">
-            <span className="btn btn-primary"><i className="fa-solid fa-file-import"></i> Import</span>
+            <span className="btn btn-primary">
+              <i className="fa-solid fa-file-import"></i> Import
+            </span>
           </label>
-          <input type="file" id="import" hidden />
+          <input
+            type="file"
+            id="import"
+            hidden
+            onChange={handleImportCSVFile}
+          />
 
           <CSVLink
             data={listUsers}
             headers={headers}
             className="btn btn-warning"
+            filename="users.csv"
           >
             <i className="fa-solid fa-file-arrow-down"></i> Export
           </CSVLink>
