@@ -8,3 +8,71 @@
     margin-right: 20px;
 }
 
+.app {
+    .login-container {
+        display: flex;
+        flex-direction: column;
+        margin: 0 auto;
+        padding-top: 30px;
+
+        .title {
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .text {
+            font-weight: 500;
+            margin-top: 15px;
+            margin-bottom: 3px;
+        }
+
+        input {
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            outline: none;
+            border: 1px solid #ccc;
+            background-color: #f2f1f2;
+
+            &:hover {
+                background-color: #e9e7eb;
+            }
+        }    
+
+        button {
+            padding: 10px;
+            border-radius: 4px;
+            outline: none;
+            border: none;
+            margin-top: 15px;
+
+            &.active {
+                background-color: #fe2c55;
+                color: #fff;
+                font-weight: 600;
+            }
+
+            .loading-icon {
+                color: #fff;
+                animation: rotate linear 2s infinite;
+            }
+
+            @keyframes rotate {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        }
+
+        button:disabled,
+        button[disabled]{
+            cursor: not-allowed;
+        }
+
+        .back {
+            text-align: center;
+            margin-top: 30px;
+            cursor: pointer;
+        }
+    }
+}

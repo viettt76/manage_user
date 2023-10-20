@@ -1,5 +1,4 @@
 .my-3.add-new {
-    display: flex;
     align-items: center;
     justify-content: space-between;
 
@@ -12,6 +11,10 @@
     }
 }
 
+.customize-table {
+    overflow-x: auto;
+}
+
 .sort-header {
     display: flex;
     justify-content: space-between;
@@ -20,4 +23,8 @@
         padding: 0 3px;
         cursor: pointer;
     }
+}
+
+.pagination {
+    justify-content: center;
 }
